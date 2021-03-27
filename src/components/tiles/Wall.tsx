@@ -11,10 +11,10 @@ export function Wall(props: GroupProps) {
 
     return (
         <group name="wall" {...props}>
-            <primitive object={nodes.Wall_Modular.clone()} position={[-1, 1, 0]} rotation-z={rot()} />
-            <primitive object={nodes.Wall_Modular.clone()} position={[-1, 3, 0]} rotation-z={rot()} />
-            <primitive object={nodes.Wall_Modular.clone()} position={[ 1, 1, 0]} rotation-z={rot()} />
-            <primitive object={nodes.Wall_Modular.clone()} position={[ 1, 3, 0]} rotation-z={rot()} />
+            <primitive object={nodes.Wall_Modular.clone()} position={[-1, 1, 0]} rotation-z={rot()} castShadow receiveShadow />
+            <primitive object={nodes.Wall_Modular.clone()} position={[-1, 3, 0]} rotation-z={rot()} castShadow receiveShadow />
+            <primitive object={nodes.Wall_Modular.clone()} position={[ 1, 1, 0]} rotation-z={rot()} castShadow receiveShadow />
+            <primitive object={nodes.Wall_Modular.clone()} position={[ 1, 3, 0]} rotation-z={rot()} castShadow receiveShadow />
             <Floor />
         </group>
     )
@@ -27,10 +27,10 @@ export function WallCorner(props: GroupProps) {
 
     return (
         <group name="wall-corner" {...props}>
-            <primitive object={nodes.Wall_Modular.clone()} position={[-1, 1, 0]} rotation-z={rot()} />
-            <primitive object={nodes.Wall_Modular.clone()} position={[-1, 3, 0]} rotation-z={rot()} />
-            <primitive object={nodes.Wall_Modular.clone()} position={[ 0, 1, 1]} rotation={[0, Math.PI / 2, rot()]} />
-            <primitive object={nodes.Wall_Modular.clone()} position={[ 0, 3, 1]} rotation={[0, Math.PI / 2, rot()]} />
+            <primitive object={nodes.Wall_Modular.clone()} position={[-1, 1, 0]} rotation-z={rot()} castShadow receiveShadow />
+            <primitive object={nodes.Wall_Modular.clone()} position={[-1, 3, 0]} rotation-z={rot()} castShadow receiveShadow />
+            <primitive object={nodes.Wall_Modular.clone()} position={[ 0, 1, 1]} rotation={[0, Math.PI / 2, rot()]} castShadow receiveShadow />
+            <primitive object={nodes.Wall_Modular.clone()} position={[ 0, 3, 1]} rotation={[0, Math.PI / 2, rot()]} castShadow receiveShadow />
             <Floor />
         </group>
     )
@@ -44,12 +44,12 @@ export function WallT(props: GroupProps) {
 
     return (
         <group name="wall-T" {...props}>
-            <primitive object={nodes.Wall_Modular.clone()} position={[-1, 1, 0]} rotation-z={rot()} />
-            <primitive object={nodes.Wall_Modular.clone()} position={[-1, 3, 0]} rotation-z={rot()} />
-            <primitive object={nodes.Wall_Modular.clone()} position={[ 1, 1, 0]} rotation-z={rot()} />
-            <primitive object={nodes.Wall_Modular.clone()} position={[ 1, 3, 0]} rotation-z={rot()} />
-            <primitive object={nodes.Wall_Modular.clone()} position={[ 0, 1, 1]} rotation={[0, Math.PI / 2, rot()]} />
-            <primitive object={nodes.Wall_Modular.clone()} position={[ 0, 3, 1]} rotation={[0, Math.PI / 2, rot()]} />
+            <primitive object={nodes.Wall_Modular.clone()} position={[-1, 1, 0]} rotation-z={rot()} castShadow receiveShadow />
+            <primitive object={nodes.Wall_Modular.clone()} position={[-1, 3, 0]} rotation-z={rot()} castShadow receiveShadow />
+            <primitive object={nodes.Wall_Modular.clone()} position={[ 1, 1, 0]} rotation-z={rot()} castShadow receiveShadow />
+            <primitive object={nodes.Wall_Modular.clone()} position={[ 1, 3, 0]} rotation-z={rot()} castShadow receiveShadow />
+            <primitive object={nodes.Wall_Modular.clone()} position={[ 0, 1, 1]} rotation={[0, Math.PI / 2, rot()]} castShadow receiveShadow />
+            <primitive object={nodes.Wall_Modular.clone()} position={[ 0, 3, 1]} rotation={[0, Math.PI / 2, rot()]} castShadow receiveShadow />
             <Floor />
         </group>
     )
@@ -62,14 +62,14 @@ export function WallX(props: GroupProps) {
 
     return (
         <group name="wall-T" {...props}>
-            <primitive object={nodes.Wall_Modular.clone()} position={[-1, 1, 0]} rotation-z={rot()} />
-            <primitive object={nodes.Wall_Modular.clone()} position={[-1, 3, 0]} rotation-z={rot()} />
-            <primitive object={nodes.Wall_Modular.clone()} position={[ 1, 1, 0]} rotation-z={rot()} />
-            <primitive object={nodes.Wall_Modular.clone()} position={[ 1, 3, 0]} rotation-z={rot()} />
-            <primitive object={nodes.Wall_Modular.clone()} position={[ 0, 1, 1]} rotation={[0, Math.PI / 2, rot()]} />
-            <primitive object={nodes.Wall_Modular.clone()} position={[ 0, 3, 1]} rotation={[0, Math.PI / 2, rot()]} />
-            <primitive object={nodes.Wall_Modular.clone()} position={[ 0, 1, -1]} rotation={[0, Math.PI / 2, rot()]} />
-            <primitive object={nodes.Wall_Modular.clone()} position={[ 0, 3, -1]} rotation={[0, Math.PI / 2, rot()]} />
+            <primitive object={nodes.Wall_Modular.clone()} position={[-1, 1, 0]} rotation-z={rot()} castShadow receiveShadow />
+            <primitive object={nodes.Wall_Modular.clone()} position={[-1, 3, 0]} rotation-z={rot()} castShadow receiveShadow />
+            <primitive object={nodes.Wall_Modular.clone()} position={[ 1, 1, 0]} rotation-z={rot()} castShadow receiveShadow />
+            <primitive object={nodes.Wall_Modular.clone()} position={[ 1, 3, 0]} rotation-z={rot()} castShadow receiveShadow />
+            <primitive object={nodes.Wall_Modular.clone()} position={[ 0, 1, 1]} rotation={[0, Math.PI / 2, rot()]} castShadow receiveShadow />
+            <primitive object={nodes.Wall_Modular.clone()} position={[ 0, 3, 1]} rotation={[0, Math.PI / 2, rot()]} castShadow receiveShadow />
+            <primitive object={nodes.Wall_Modular.clone()} position={[ 0, 1, -1]} rotation={[0, Math.PI / 2, rot()]} castShadow receiveShadow />
+            <primitive object={nodes.Wall_Modular.clone()} position={[ 0, 3, -1]} rotation={[0, Math.PI / 2, rot()]} castShadow receiveShadow />
             <Floor />
         </group>
     )

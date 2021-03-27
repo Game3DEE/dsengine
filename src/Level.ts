@@ -28,7 +28,10 @@ export interface Level {
     tiles: TileInstance[] // actual placed tiles
 }
 
-export function findTileInLevel(map: Level, x: number, y: number) {
-    return map.tiles.find(tile => tile.x === x && tile.y === y)
+export function findTileInLevel(lvl: Level, x: number, y: number) {
+    return lvl.tiles.find(tile => tile.x === x && tile.y === y)
 }
 
+export function findTileInSetById(tileSet: TileSet, tileId: string) {
+    return tileSet.tiles.find(t => t.id === tileId);
+}

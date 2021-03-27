@@ -1,8 +1,196 @@
-import React from 'react'
+import { OrbitControls, Stats } from '@react-three/drei'
+import React, { Suspense } from 'react'
+import { Canvas, GroupProps, useFrame } from 'react-three-fiber'
+import { Object3D, Vector3 } from 'three'
+import { LevelRenderer } from '../components/LevelRenderer'
+import { Player } from '../components/Player'
+import { useKeyboard } from '../hooks/useKeyboard'
+import { findTileInSetById, Level, TilePhysics } from '../Level'
+import { dungeonTileSet } from '../TileSets'
 
-export default function PlayPage() {
+import { defaultLevel } from '../defaultLevel'
+
+import './PlayPage.css'
+
+interface SceneOwnProps {
+    level: Level
+}
+type SceneProps = SceneOwnProps & GroupProps
+
+/*
+        <pointLight ref={lightRef} args={[0xffffff,0.5,2,0.1]} position={[2.5,1,0.4]} castShadow />
+*/
+function Scene({ level }: SceneProps) {
+    const lightRef = React.useRef<Object3D>()
+    const playerRef = React.useRef<Object3D>()
+    const tmpVec = React.useRef<Vector3>(new Vector3())
+    const cameraRef = React.useRef<Object3D>()
+    const [ playerAnim, setPlayerAnim ] = React.useState('Idle')
+
+    const physGridSize = 64 * 3
+
+    const physicsMap = React.useMemo(() => {
+        let physGrid = new Array<TilePhysics>(physGridSize * physGridSize).fill(TilePhysics.Void)
+        level.tiles.forEach(ti => {
+            const x = (ti.x + 32) * 3; // add half the map size (in tiles) to
+            const y = (ti.y + 32) * 3; // make sure coordinates are positive
+            let tileP = findTileInSetById(level.tileSet, ti.id)
+            if (tileP) {
+                const physics = tileP.physics.slice();
+                for (let i = 0; i < ti.rotation; i++) {
+                    const old = physics.slice()
+                    physics[0] = old[6]
+                    physics[1] = old[3]
+                    physics[2] = old[0]
+                    physics[3] = old[7]
+                    physics[4] = old[4]
+                    physics[5] = old[1]
+                    physics[6] = old[8]
+                    physics[7] = old[5]
+                    physics[8] = old[2]
+                }
+                let off = (y * physGridSize) + x
+                for (let i = 0; i < 3; i++) {
+                    physGrid[off + 0] = physics[3 * i + 0]
+                    physGrid[off + 1] = physics[3 * i + 1]
+                    physGrid[off + 2] = physics[3 * i + 2]
+                    off += physGridSize
+                }
+            }
+        })
+        return physGrid
+    }, [level.tileSet, level.tiles, physGridSize])
+
+    const physDebug = React.useMemo(() => {
+        const elems: JSX.Element[] = []
+        physicsMap.forEach((el, idx) => {
+            if (el === TilePhysics.Blocked) {
+                const x = ((idx % physGridSize) * 1/3) - 32 + (1/3)/2
+                const y = (Math.floor(idx / physGridSize) * 1/3) - 32 + (1/3)/2
+                elems.push(
+                    <mesh key={idx} position={[x, 1, y]}>
+                        <boxBufferGeometry args={[1/3,2,1/3]}/>
+                        <meshLambertMaterial color="hotpink" />
+                    </mesh>
+                )
+            }
+        })
+
+        return elems
+    }, [physGridSize, physicsMap])
+
+    const inputs = {
+        left: false,
+        right: false,
+        forward: false,
+        backward: false,
+        attack: false,
+    }
+
+    useFrame(({ camera }) => {
+        if (playerRef.current && cameraRef.current) {
+            // Update camera
+
+            cameraRef.current.getWorldPosition(tmpVec.current)
+            camera.position.lerp(tmpVec.current, 0.05)
+            const pos = playerRef.current.position
+            camera.lookAt(pos.x, pos.y + 0.5, pos.z)
+
+            // Update rotation
+            if (inputs.left) {
+                playerRef.current.rotation.y += Math.PI * 0.005
+            }
+            if (inputs.right) {
+                playerRef.current.rotation.y += -Math.PI * 0.005
+            }
+            if (inputs.forward || inputs.backward) {
+                tmpVec.current.set(0, 0, inputs.forward ? 0.01 : -0.01)
+                tmpVec.current.applyQuaternion(playerRef.current.quaternion)
+                tmpVec.current.add(playerRef.current.position)
+
+                // Check if we can actually move there
+                let physGridX = Math.floor((tmpVec.current.x + 32) / (1/3));
+                let physGridY = Math.floor((tmpVec.current.z + 32) / (1/3));
+                console.log(Math.floor(physGridX / 3) - 32, Math.floor(physGridY / 3) - 32, physGridX % 3, physGridY % 3)
+
+                if (true) { //physicsMap[physGridY * physGridSize + physGridX] === TilePhysics.Walkable) {
+                    playerRef.current.position.copy(tmpVec.current)
+                }
+
+                
+            }
+        }
+    });
+
+    useKeyboard(event => {
+        const down = event.type === 'keydown'
+        switch(event.key.toLowerCase()) {
+            case 'arrowup':
+                break;
+            case 'arrowdown':
+                break;
+            case 'arrowleft':
+                break;
+            case 'arrowright':
+                break;
+
+            case 'w':   inputs.forward = down; setPlayerAnim(down ? 'Walk' : 'Idle'); break;
+            case 'a':   inputs.left = down; break;
+            case 's':   inputs.backward = down; setPlayerAnim(down ? 'Walk' : 'Idle'); break;
+            case 'd':   inputs.right = down; break;
+
+            case 'c':
+                // TODO Switch camera modes
+                break;
+
+            case 'space':
+            case ' ':   inputs.attack = down;
+                break;
+
+            default:
+                console.log(event.key)
+        }
+    })
+
+    const staticGeo = React.useMemo(() => <LevelRenderer level={level} gridSize={1} />, [level])
+
+/*
+        <OrbitControls maxPolarAngle={Math.PI * 0.5} />
+*/
+
     return (
         <>
+        <Stats />
+
+        <ambientLight intensity={0.1} />
+        <directionalLight intensity={0.4} position={[2.5,1,0.4]} ref={lightRef} />
+
+        {staticGeo}
+        {/*physDebug*/}
+
+        <Player
+            animation={playerAnim}
+            scale={[0.25,0.25,0.25]}
+            position={[1.5,0.06,0.4]}
+            ref={playerRef}>
+            <group position={[.7,3,-3]} ref={cameraRef} />
+        </Player>
         </>
+    )
+}
+
+/*
+*/
+
+export default function PlayPage() {
+//    const level: Level = JSON.parse(localStorage.getItem('untitled')!)
+    //level.tileSet = dungeonTileSet;
+    const level = defaultLevel;
+    return (
+        <Canvas shadowMap camera={{position:[8,5,0]}} className="ingame">
+            <Suspense fallback={null}>
+                <Scene level={level} />
+            </Suspense>
+        </Canvas>
     )
 }

@@ -8,6 +8,8 @@ import { LevelRenderer } from '../components/LevelRenderer';
 import { findTileInLevel, Level, TileInstance } from '../Level';
 import { dungeonTileSet, getElementForTile } from '../TileSets';
 
+import './EditPage.css'
+
 const gridSize = 1;
 
 const defaultMap = {
@@ -23,6 +25,15 @@ export default function EditPage() {
     const [ tileRotation, setTileRotation ] = React.useState(0)
     const [ map, setMap ] = React.useState<Level>(defaultMap)
 
+    React.useEffect(() => {
+        const item = localStorage.getItem('untitled')
+        if (item) {
+            const lvl : Level = JSON.parse(item)
+            lvl.tileSet = dungeonTileSet;
+            setMap(lvl)
+        }
+    }, [setMap])
+
     // Handle moving the cursor
     const onPointerMove = (event: PointerEvent) => {
         const { point } = event
@@ -30,6 +41,7 @@ export default function EditPage() {
 
         const gridX = Math.floor(point.x / gridSize)
         const gridY = Math.floor(point.z / gridSize)
+        document.getElementsByClassName('grid-pos')[0].textContent = `${gridX},${gridY} / ${point.x.toFixed(3)},${point.z.toFixed(3)} / ${tileRotation}`
 
         if (cursorRef.current) {
             cursorRef.current.position.set(
@@ -88,6 +100,9 @@ export default function EditPage() {
             case 'escape':
                 setTileIndex(-1)
                 break;
+            case 's':
+                localStorage.setItem('untitled', JSON.stringify(map))
+                break;
             case 'r':
                 up && setTileRotation((tileRotation + 1) % 4)
                 break
@@ -105,6 +120,8 @@ export default function EditPage() {
     tabIndex={-1} onKeyDown={keyPressed}
     */
     return (
+        <>
+        <span className="grid-pos"/>
         <Canvas shadowMap camera={{position:[8,5,0]}}>
             <Suspense fallback={null}>
                 <OrbitControls maxPolarAngle={Math.PI * 0.5} />
@@ -150,5 +167,6 @@ export default function EditPage() {
                 </group>
             </Suspense>
         </Canvas>
+        </>
     )
 }

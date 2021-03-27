@@ -20,9 +20,9 @@ export const dungeonTileSet: TileSet = {
             TilePhysics.Walkable, TilePhysics.Walkable, TilePhysics.Walkable,
         ] },
         { id: 'wall-T', physics: [
-            TilePhysics.Walkable, TilePhysics.Blocked,  TilePhysics.Walkable,
-            TilePhysics.Blocked,  TilePhysics.Blocked,  TilePhysics.Blocked,
             TilePhysics.Walkable, TilePhysics.Walkable, TilePhysics.Walkable,
+            TilePhysics.Blocked,  TilePhysics.Blocked,  TilePhysics.Blocked,
+            TilePhysics.Walkable, TilePhysics.Blocked,  TilePhysics.Walkable,
         ] },
         { id: 'wall-X', physics: [
             TilePhysics.Walkable, TilePhysics.Blocked,  TilePhysics.Walkable,

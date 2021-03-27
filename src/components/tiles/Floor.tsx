@@ -11,10 +11,10 @@ export function Floor(props: GroupProps) {
     const height = 0.08;
     return (
         <group name="floor" {...props}>
-            <primitive object={nodes.Floor_Modular.clone()} position={[-1, -height, -1]} rotation-y={rot()} />
-            <primitive object={nodes.Floor_Modular.clone()} position={[ 1, -height, -1]} rotation-y={rot()} />
-            <primitive object={nodes.Floor_Modular.clone()} position={[-1, -height,  1]} rotation-y={rot()} />
-            <primitive object={nodes.Floor_Modular.clone()} position={[ 1, -height,  1]} rotation-y={rot()} />
+            <primitive object={nodes.Floor_Modular.clone()} position={[-1, -height, -1]} rotation-y={rot()} receiveShadow />
+            <primitive object={nodes.Floor_Modular.clone()} position={[ 1, -height, -1]} rotation-y={rot()} receiveShadow />
+            <primitive object={nodes.Floor_Modular.clone()} position={[-1, -height,  1]} rotation-y={rot()} receiveShadow />
+            <primitive object={nodes.Floor_Modular.clone()} position={[ 1, -height,  1]} rotation-y={rot()} receiveShaodw />
         </group>
     )
 }

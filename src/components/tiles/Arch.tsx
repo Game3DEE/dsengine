@@ -8,7 +8,7 @@ export function Arch(props: GroupProps) {
     const { nodes } = useGLTF(archModel)
     return (
         <group name="arch" {...props}>
-            <primitive object={nodes.Arch.clone()} />
+            <primitive object={nodes.Arch.clone()} castShadow receiveShadow />
             <Floor />
         </group>
         
