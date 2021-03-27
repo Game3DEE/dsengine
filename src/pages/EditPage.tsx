@@ -2,48 +2,26 @@ import React, { Suspense } from 'react'
 import { Canvas, PointerEvent } from 'react-three-fiber'
 import { Stats, OrbitControls } from '@react-three/drei'
 import { Object3D } from 'three';
-import { Floor, Wall, WallCorner, WallT, WallX, Arch } from '../components/tiles';
 import { useKeyboard } from '../hooks/useKeyboard';
+import { LevelRenderer } from '../components/LevelRenderer';
+
+import { findTileInLevel, Level, TileInstance } from '../Level';
+import { dungeonTileSet, getElementForTile } from '../TileSets';
 
 const gridSize = 1;
-
-const tileList = [
-    <Floor />,
-    <Wall />,
-    <WallCorner />,
-    <WallT />,
-    <WallX />,
-    <Arch />,
-];
-
-interface Tile {
-    id: string
-    x: number
-    y: number // (tile) grid based location
-    rotation: number    
-}
-
-interface Map {
-    version: number // currently unused, intended for public releases
-    size: number // currently size is fixed by editor to gridCount (64)
-    tiles: Tile[]
-}
-
-function findTileAt(map: Map, x: number, y: number) {
-    return map.tiles.find(tile => tile.x === x && tile.y === y)
-}
 
 const defaultMap = {
     version: 0,
     size: 64,
     tiles: [],
+    tileSet: dungeonTileSet,
 }
 
 export default function EditPage() {
     const cursorRef = React.useRef<Object3D>()
     const [ tileIndex, setTileIndex ] = React.useState(-1)
     const [ tileRotation, setTileRotation ] = React.useState(0)
-    const [ map, setMap ] = React.useState<Map>(defaultMap)
+    const [ map, setMap ] = React.useState<Level>(defaultMap)
 
     // Handle moving the cursor
     const onPointerMove = (event: PointerEvent) => {
@@ -69,11 +47,12 @@ export default function EditPage() {
 
         const gridX = Math.floor(point.x / gridSize)
         const gridY = Math.floor(point.z / gridSize)
-        const tile = findTileAt(map, gridX, gridY)
+        const tile = findTileInLevel(map, gridX, gridY)
+        
         // Check if we're picking a tile
         if (event.shiftKey) {
             // ... and if so, handle case of no tile
-            setTileIndex(tile ? parseInt(tile.id) : -1 )
+            setTileIndex(tile ? map.tileSet.tiles.findIndex(t => t.id === tile.id) : -1 )
             tile && setTileRotation(tile.rotation)
             return
         }
@@ -84,8 +63,8 @@ export default function EditPage() {
         }
 
         // Update state with new tile
-        const { version, size, tiles } = map
-        const newTiles: Tile[] = tiles.slice()
+        const { version, size, tiles, tileSet } = map
+        const newTiles: TileInstance[] = tiles.slice()
 
         if (tile) {
             newTiles.splice(newTiles.indexOf(tile), 1)
@@ -93,14 +72,14 @@ export default function EditPage() {
 
         if (tileIndex >= 0) {
             newTiles.push({
-                id: `${tileIndex}`,
+                id: map.tileSet.tiles[tileIndex].id,
                 x: gridX,
                 y: gridY,
                 rotation: tileRotation,
             })
         }
         
-        setMap({ version, size, tiles: newTiles })
+        setMap({ version, size, tileSet, tiles: newTiles })
     }
 
     useKeyboard((event: KeyboardEvent) => {
@@ -116,7 +95,7 @@ export default function EditPage() {
                 up && tileIndex >= 0 && setTileIndex(tileIndex -1)
                 break
             case ']':
-                up && tileIndex < tileList.length -1 && setTileIndex(tileIndex +1)
+                up && tileIndex < map.tileSet.tiles.length -1 && setTileIndex(tileIndex +1)
                 break
         }
     })
@@ -126,27 +105,15 @@ export default function EditPage() {
     tabIndex={-1} onKeyDown={keyPressed}
     */
     return (
-        <div className="scene-container" >
         <Canvas shadowMap camera={{position:[8,5,0]}}>
             <Suspense fallback={null}>
                 <OrbitControls maxPolarAngle={Math.PI * 0.5} />
                 <Stats />
                 <directionalLight intensity={0.4}/>
                 <ambientLight intensity={0.2} />
-                <gridHelper args={[levelSize, map.size, 0x440000, 0x444444]} />
-                { // Draw map
-                    map.tiles.map(tile => (
-                        <group 
-                            key={`${tile.x}x${tile.y}`}
-                            position-x={tile.x * gridSize + gridSize / 2}
-                            position-z={tile.y * gridSize + gridSize / 2}
-                            rotation-y={-(Math.PI / 2) * tile.rotation}
-                            scale={[0.25,0.25,0.25]}
-                        >
-                            {tileList[parseInt(tile.id)]}
-                        </group>
-                    ))
-                }
+                <gridHelper args={[levelSize, map.size, 0x222222, 0x444444]} />
+                <axesHelper args={[levelSize]} position-y={0.01} />
+                <LevelRenderer gridSize={gridSize} level={map} />
                 { /* hidden plane is there to detect mouse movement on "ground" */}
                 <mesh 
                     name="hidden-plane"
@@ -168,7 +135,7 @@ export default function EditPage() {
                         scale={[0.25,0.25,0.25]}
                         rotation-y={ -(Math.PI / 2) * tileRotation}
                         name="tile-container">
-                        {tileList[tileIndex]}
+                        {getElementForTile(map.tileSet.id, map.tileSet.tiles[tileIndex].id)}
                     </group>
                     }
                     {
@@ -183,6 +150,5 @@ export default function EditPage() {
                 </group>
             </Suspense>
         </Canvas>
-        </div>
     )
 }

@@ -7,7 +7,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-.scene-container {
+#root {
   margin: 0;
   overflow: hidden;
   width: 100vw;
