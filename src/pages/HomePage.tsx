@@ -12,7 +12,7 @@ export default function HomePage() {
             <Link to="/">Home</Link>
           </li>
           <li>
-            <Link to="/about">Play</Link>
+            <Link to="/play">Play</Link>
           </li>
           <li>
             <Link to="/edit">Edit</Link>
