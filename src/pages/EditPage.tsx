@@ -1,22 +1,23 @@
 import React, { Suspense } from 'react'
+
 import { Canvas, PointerEvent } from 'react-three-fiber'
 import { Stats, OrbitControls } from '@react-three/drei'
 import { Object3D } from 'three';
+
 import { useKeyboard } from '../hooks/useKeyboard';
 import { LevelRenderer } from '../components/LevelRenderer';
 
 import { findTileInLevel, Level, TileInstance } from '../Level';
-import { dungeonTileSet, getElementForTile } from '../TileSets';
+import { getTileByIndex, getTileCount, getTileIndexById } from '../TileSets';
 
 import './EditPage.css'
 
 const gridSize = 1;
 
-const defaultMap = {
+const defaultMap: Level = {
     version: 0,
     size: 64,
     tiles: [],
-    tileSet: dungeonTileSet,
 }
 
 export default function EditPage() {
@@ -29,7 +30,6 @@ export default function EditPage() {
         const item = localStorage.getItem('untitled')
         if (item) {
             const lvl : Level = JSON.parse(item)
-            lvl.tileSet = dungeonTileSet;
             setMap(lvl)
         }
     }, [setMap])
@@ -59,39 +59,37 @@ export default function EditPage() {
 
         const gridX = Math.floor(point.x / gridSize)
         const gridY = Math.floor(point.z / gridSize)
-        const tile = findTileInLevel(map, gridX, gridY)
+        let tile = findTileInLevel(map, gridX, gridY)
         
         // Check if we're picking a tile
         if (event.shiftKey) {
             // ... and if so, handle case of no tile
-            setTileIndex(tile ? map.tileSet.tiles.findIndex(t => t.id === tile.id) : -1 )
+            setTileIndex(tile ? getTileIndexById(tile.id) : -1 )
             tile && setTileRotation(tile.rotation)
             return
         }
 
-        // Don't clear out tile unless shift is pressed
-        if (tileIndex === -1 && !event.ctrlKey) {
-            return
-        }
-
-        // Update state with new tile
-        const { version, size, tiles, tileSet } = map
+        // Update state with new tile (if there was one)
+        const { version, size, tiles } = map
         const newTiles: TileInstance[] = tiles.slice()
 
-        if (tile) {
+        if (tile && (tileIndex !== -1 || event.ctrlKey)) {
             newTiles.splice(newTiles.indexOf(tile), 1)
         }
 
-        if (tileIndex >= 0) {
+        // Only place new tile if one is 
+        // selected and ctrl key not pressed
+        if (tileIndex >= 0 && !event.ctrlKey) {
             newTiles.push({
-                id: map.tileSet.tiles[tileIndex].id,
+                id: getTileByIndex(tileIndex)!.id,
                 x: gridX,
                 y: gridY,
                 rotation: tileRotation,
             })
         }
         
-        setMap({ version, size, tileSet, tiles: newTiles })
+        // finally update map!
+        setMap({ version, size, tiles: newTiles })
     }
 
     useKeyboard((event: KeyboardEvent) => {
@@ -110,7 +108,7 @@ export default function EditPage() {
                 up && tileIndex >= 0 && setTileIndex(tileIndex -1)
                 break
             case ']':
-                up && tileIndex < map.tileSet.tiles.length -1 && setTileIndex(tileIndex +1)
+                up && tileIndex < getTileCount() -1 && setTileIndex(tileIndex +1)
                 break
         }
     })
@@ -152,7 +150,7 @@ export default function EditPage() {
                         scale={[0.25,0.25,0.25]}
                         rotation-y={ -(Math.PI / 2) * tileRotation}
                         name="tile-container">
-                        {getElementForTile(map.tileSet.id, map.tileSet.tiles[tileIndex].id)}
+                        {getTileByIndex(tileIndex)!.element}
                     </group>
                     }
                     {

@@ -1,6 +1,6 @@
 import { GroupProps } from 'react-three-fiber'
 import { Level } from '../Level'
-import { getElementForTile } from '../TileSets';
+import { getTileById } from '../TileSets';
 
 interface OwnProps {
     level: Level
@@ -18,7 +18,7 @@ export function LevelRenderer({ level, gridSize }: LevelRendererProps) {
             rotation-y={-(Math.PI / 2) * tile.rotation}
             scale={[0.25,0.25,0.25]}
         >
-            {getElementForTile(level.tileSet.id, tile.id)}
+            {getTileById(tile.id)?.element}
         </group>
     ))
     

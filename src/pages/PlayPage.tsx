@@ -1,14 +1,15 @@
-import { OrbitControls, Stats } from '@react-three/drei'
 import React, { Suspense } from 'react'
+
 import { Canvas, GroupProps, useFrame } from 'react-three-fiber'
+import { OrbitControls, Stats } from '@react-three/drei'
 import { Object3D, Vector3 } from 'three'
+
 import { LevelRenderer } from '../components/LevelRenderer'
 import { Player } from '../components/Player'
 import { useKeyboard } from '../hooks/useKeyboard'
-import { findTileInSetById, Level, TilePhysics } from '../Level'
-import { dungeonTileSet } from '../TileSets'
 
-import { defaultLevel } from '../defaultLevel'
+import { Level, SubTilePhysics } from '../Level'
+import { getTileById } from '../TileSets'
 
 import './PlayPage.css'
 
@@ -30,11 +31,11 @@ function Scene({ level }: SceneProps) {
     const physGridSize = 64 * 3
 
     const physicsMap = React.useMemo(() => {
-        let physGrid = new Array<TilePhysics>(physGridSize * physGridSize).fill(TilePhysics.Void)
+        let physGrid = new Array<SubTilePhysics>(physGridSize * physGridSize).fill(SubTilePhysics.Void)
         level.tiles.forEach(ti => {
             const x = (ti.x + 32) * 3; // add half the map size (in tiles) to
             const y = (ti.y + 32) * 3; // make sure coordinates are positive
-            let tileP = findTileInSetById(level.tileSet, ti.id)
+            let tileP = getTileById(ti.id)
             if (tileP) {
                 const physics = tileP.physics.slice();
                 for (let i = 0; i < ti.rotation; i++) {
@@ -59,12 +60,12 @@ function Scene({ level }: SceneProps) {
             }
         })
         return physGrid
-    }, [level.tileSet, level.tiles, physGridSize])
+    }, [level.tiles, physGridSize])
 
     const physDebug = React.useMemo(() => {
         const elems: JSX.Element[] = []
         physicsMap.forEach((el, idx) => {
-            if (el === TilePhysics.Blocked) {
+            if (el === SubTilePhysics.Blocked) {
                 const x = ((idx % physGridSize) * 1/3) - 32 + (1/3)/2
                 const y = (Math.floor(idx / physGridSize) * 1/3) - 32 + (1/3)/2
                 elems.push(
@@ -113,7 +114,7 @@ function Scene({ level }: SceneProps) {
                 let physGridY = Math.floor((tmpVec.current.z + 32) / (1/3));
                 console.log(Math.floor(physGridX / 3) - 32, Math.floor(physGridY / 3) - 32, physGridX % 3, physGridY % 3)
 
-                if (true) { //physicsMap[physGridY * physGridSize + physGridX] === TilePhysics.Walkable) {
+                if (true) { //physicsMap[physGridY * physGridSize + physGridX] === SubTilePhysics.Walkable) {
                     playerRef.current.position.copy(tmpVec.current)
                 }
 
@@ -183,9 +184,8 @@ function Scene({ level }: SceneProps) {
 */
 
 export default function PlayPage() {
-//    const level: Level = JSON.parse(localStorage.getItem('untitled')!)
-    //level.tileSet = dungeonTileSet;
-    const level = defaultLevel;
+    const level: Level = JSON.parse(localStorage.getItem('untitled')!)
+
     return (
         <Canvas shadowMap camera={{position:[8,5,0]}} className="ingame">
             <Suspense fallback={null}>
