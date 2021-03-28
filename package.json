@@ -2,6 +2,7 @@
   "name": "dsengine",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://game3dee.github.io/dsengine",
   "dependencies": {
     "@react-three/drei": "^3.11.2",
     "@testing-library/jest-dom": "^5.11.4",
@@ -24,7 +25,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": [
@@ -46,6 +49,7 @@
   },
   "devDependencies": {
     "@types/react-router-dom": "^5.1.7",
-    "@types/three": "^0.126.2"
+    "@types/three": "^0.126.2",
+    "gh-pages": "^3.1.0"
   }
 }
