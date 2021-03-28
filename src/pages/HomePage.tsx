@@ -54,7 +54,7 @@ export default function HomePage() {
   return (
     <div className="container">
       <h1>DSEngine</h1>
-      <p>If you feel you created a cool map, click the download button below, and either create a Merge Request or send me an <Link to="mailto:ithamar@game3dee.com?Subject=DSEngine">email</Link> with the level file.</p>
+      <p>If you feel you created a cool map, click the download button below, and either create a Merge Request or send me an <a href="mailto:ithamar@game3dee.com?subject=DSEngine">email</a> with the level file.</p>
       <h3>Official levels</h3>
       <sub>These are the levels provided with DSEngine</sub>
       <div className="Rtable Rtable--4cols">
