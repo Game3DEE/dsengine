@@ -1,0 +1,9 @@
+.icon-preview {
+  width: 256px;
+  height: 256px;
+  background: black;
+}
+
+.container {
+  margin: 1rem;
+}
