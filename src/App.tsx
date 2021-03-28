@@ -17,10 +17,10 @@ export default function App() {
           <Route exact path="/">
             <HomePage />
           </Route>
-          <Route path="/play">
+          <Route path="/play/:level?">
             <PlayPage />
           </Route>
-          <Route path="/edit">
+          <Route path="/edit/:level?">
             <EditPage />
           </Route>
           <Route path="/admin">

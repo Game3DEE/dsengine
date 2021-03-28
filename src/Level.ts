@@ -61,3 +61,10 @@ export enum SubTilePhysics {
 export function findTileInLevel(lvl: Level, x: number, y: number) {
     return lvl.tiles.find(tile => tile.x === x && tile.y === y)
 }
+
+/** Empty level, for easy state handling */
+export const emptyLevel: Level = {
+    version: 0,
+    size: 64,
+    tiles: [],
+}

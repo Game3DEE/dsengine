@@ -7,32 +7,37 @@ import { Object3D } from 'three';
 import { useKeyboard } from '../hooks/useKeyboard';
 import { LevelRenderer } from '../components/LevelRenderer';
 
-import { findTileInLevel, Level, TileInstance } from '../Level';
+import { emptyLevel, findTileInLevel, Level, TileInstance } from '../Level';
 import { getTileByIndex, getTileCount, getTileIndexById } from '../TileSets';
 
 import './EditPage.css'
+import { useParams } from 'react-router';
 
 const gridSize = 1;
 
-const defaultMap: Level = {
-    version: 0,
-    size: 64,
-    tiles: [],
+interface PageParams {
+    level?: string
 }
 
 export default function EditPage() {
     const cursorRef = React.useRef<Object3D>()
     const [ tileIndex, setTileIndex ] = React.useState(-1)
     const [ tileRotation, setTileRotation ] = React.useState(0)
-    const [ map, setMap ] = React.useState<Level>(defaultMap)
+    const [ map, setMap ] = React.useState<Level>(emptyLevel)
+    const { level } = useParams<PageParams>()
 
     React.useEffect(() => {
-        const item = localStorage.getItem('untitled')
-        if (item) {
-            const lvl : Level = JSON.parse(item)
-            setMap(lvl)
-        }
-    }, [setMap])
+        let levelToLoad = level || 'default';
+        fetch(`levels/${levelToLoad}.json`).then(body => body.json()).then(loadedLevel => {
+            setMap(loadedLevel)
+        }).catch(reason => {
+            console.log(reason)
+            const item = localStorage.getItem('untitled')
+            if (item) {
+                setMap(JSON.parse(item))
+            }    
+        })
+    }, [setMap, level])
 
     // Handle moving the cursor
     const onPointerMove = (event: PointerEvent) => {

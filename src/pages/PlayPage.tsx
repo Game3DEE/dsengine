@@ -8,15 +8,20 @@ import { LevelRenderer } from '../components/LevelRenderer'
 import { Player } from '../components/Player'
 import { useKeyboard } from '../hooks/useKeyboard'
 
-import { Level, SubTilePhysics } from '../Level'
+import { emptyLevel, Level, SubTilePhysics } from '../Level'
 import { getTileById } from '../TileSets'
 
 import './PlayPage.css'
+import { useParams } from 'react-router-dom'
 
 interface SceneOwnProps {
     level: Level
 }
 type SceneProps = SceneOwnProps & GroupProps
+
+interface PageParams {
+    level?: string
+}
 
 function Scene({ level }: SceneProps) {
     const lightRef = React.useRef<Object3D>()
@@ -145,6 +150,17 @@ function Scene({ level }: SceneProps) {
                 }
                 break;
 
+            case '1':
+                if (cameraRef.current) {
+                    cameraRef.current.position.set(.7,13,-2)
+                }
+                break;
+            case '2':
+                if (cameraRef.current) {
+                    cameraRef.current.position.set(.7,3,-2)
+                }
+                break;
+
             case 'w':   inputs.forward = down; setPlayerAnim(down ? 'Walk' : 'Idle'); break;
             case 'a':   inputs.left = down; break;
             case 's':   inputs.backward = down; setPlayerAnim(down ? 'Walk' : 'Idle'); break;
@@ -180,14 +196,28 @@ function Scene({ level }: SceneProps) {
             scale={[0.2,0.2,0.2]}
             position={[1.5,0.06,0.4]}
             ref={playerRef}>
-            <group position={[.7,13,-2]} ref={cameraRef} />
+            <group position={[.7,3,-2]} ref={cameraRef} />
         </Player>
         </>
     )
 }
 
 export default function PlayPage() {
-    const level: Level = JSON.parse(localStorage.getItem('untitled')!)
+    const [ level, setLevel ] = React.useState<Level>(emptyLevel)
+    const { level: loadLevel } = useParams<PageParams>()
+
+    React.useEffect(() => {
+        let levelToLoad = loadLevel || 'default';
+        fetch(`levels/${levelToLoad}.json`).then(body => body.json()).then(loadedLevel => {
+            setLevel(loadedLevel)
+        }).catch(reason => {
+            console.log(reason)
+            const item = localStorage.getItem('untitled')
+            if (item) {
+                setLevel(JSON.parse(item))
+            }    
+        })
+    }, [setLevel, loadLevel])
 
     return (
         <Canvas shadowMap camera={{position:[8,5,0]}} className="ingame">
