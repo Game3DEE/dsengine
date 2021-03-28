@@ -1,7 +1,7 @@
 import React, { Suspense } from 'react'
 
 import { Canvas, GroupProps, useFrame } from 'react-three-fiber'
-import { OrbitControls, Stats } from '@react-three/drei'
+import { Stats } from '@react-three/drei'
 import { Object3D, Vector3 } from 'three'
 
 import { LevelRenderer } from '../components/LevelRenderer'
@@ -18,9 +18,6 @@ interface SceneOwnProps {
 }
 type SceneProps = SceneOwnProps & GroupProps
 
-/*
-        <pointLight ref={lightRef} args={[0xffffff,0.5,2,0.1]} position={[2.5,1,0.4]} castShadow />
-*/
 function Scene({ level }: SceneProps) {
     const lightRef = React.useRef<Object3D>()
     const playerRef = React.useRef<Object3D>()
@@ -125,14 +122,27 @@ function Scene({ level }: SceneProps) {
 
     useKeyboard(event => {
         const down = event.type === 'keydown'
+        const cameraStep = 0.1;
         switch(event.key.toLowerCase()) {
             case 'arrowup':
+                if (cameraRef.current) {
+                    cameraRef.current.position.y -= cameraStep;
+                }
                 break;
             case 'arrowdown':
+                if (cameraRef.current) {
+                    cameraRef.current.position.y += cameraStep;
+                }
                 break;
             case 'arrowleft':
+                if (cameraRef.current) {
+                    cameraRef.current.position.x  -= cameraStep;
+                }
                 break;
             case 'arrowright':
+                if (cameraRef.current) {
+                    cameraRef.current.position.x += cameraStep;
+                }
                 break;
 
             case 'w':   inputs.forward = down; setPlayerAnim(down ? 'Walk' : 'Idle'); break;
@@ -155,16 +165,12 @@ function Scene({ level }: SceneProps) {
 
     const staticGeo = React.useMemo(() => <LevelRenderer level={level} gridSize={1} />, [level])
 
-/*
-        <OrbitControls maxPolarAngle={Math.PI * 0.5} />
-*/
-
     return (
         <>
         <Stats />
 
         <ambientLight intensity={0.2} />
-        <directionalLight intensity={0.4} position={[2.5,1,0.4]} ref={lightRef} />
+        <directionalLight intensity={0.4} position={[2.5,1,0.4]} ref={lightRef} castShadow />
 
         {staticGeo}
         {/*physDebug*/}
@@ -174,14 +180,11 @@ function Scene({ level }: SceneProps) {
             scale={[0.25,0.25,0.25]}
             position={[1.5,0.06,0.4]}
             ref={playerRef}>
-            <group position={[.7,3,-3]} ref={cameraRef} />
+            <group position={[.7,13,-2]} ref={cameraRef} />
         </Player>
         </>
     )
 }
-
-/*
-*/
 
 export default function PlayPage() {
     const level: Level = JSON.parse(localStorage.getItem('untitled')!)

@@ -10,7 +10,7 @@ import { getTileByIndex, getTileCount } from "../TileSets";
 import "./AdminPage.css";
 
 function DumpCamera() {
-  const { camera, gl } = useThree();
+  const { camera } = useThree();
   console.log(camera.position, camera.rotation);
   return <></>;
 }
