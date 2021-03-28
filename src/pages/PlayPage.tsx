@@ -177,7 +177,7 @@ function Scene({ level }: SceneProps) {
 
         <Player
             animation={playerAnim}
-            scale={[0.25,0.25,0.25]}
+            scale={[0.2,0.2,0.2]}
             position={[1.5,0.06,0.4]}
             ref={playerRef}>
             <group position={[.7,13,-2]} ref={cameraRef} />

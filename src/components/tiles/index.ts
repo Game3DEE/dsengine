@@ -1,3 +1,5 @@
 export { Arch } from './Arch'
-export { Wall, WallCorner, WallT, WallX  } from './Wall'
+export { Wall, WallWithColumn, WallCorner, WallT, WallX, WallBroken  } from './Wall'
 export { Floor } from './Floor'
+export { SquareColumn, RoundColumn } from './Columns'
+export { StatueHorse } from './StatueHorse'
