@@ -182,8 +182,6 @@ function Scene({ level }: SceneProps) {
         }
     })
 
-    const staticGeo = React.useMemo(() => <LevelRenderer level={level} gridSize={1} />, [level])
-
     return (
         <>
         <Stats />
@@ -191,7 +189,7 @@ function Scene({ level }: SceneProps) {
         <ambientLight intensity={0.2} />
         <directionalLight intensity={0.4} position={[2.5,1,0.4]} ref={lightRef} castShadow />
 
-        {staticGeo}
+        <LevelRenderer level={level} gridSize={1} />
         {debug && physDebug}
 
         <Player
