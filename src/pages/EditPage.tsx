@@ -4,19 +4,135 @@ import { Canvas, PointerEvent } from 'react-three-fiber'
 import { Stats, OrbitControls } from '@react-three/drei'
 import { Object3D } from 'three';
 
-import { useKeyboard } from '../hooks/useKeyboard';
-import { LevelRenderer } from '../components/LevelRenderer';
+import { useKeyboard } from '../hooks/useKeyboard'
+import { LevelRenderer } from '../components/LevelRenderer'
 
-import { emptyLevel, findTileInLevel, Level, TileInstance } from '../Level';
-import { getTileByIndex, getTileCount, getTileIndexById } from '../TileSets';
+import { emptyLevel, findTileInLevel, Level, TileInstance } from '../Level'
+import { getTileByIndex, getTileCount, getTileIndexById } from '../TileSets'
 
 import './EditPage.css'
 import { useParams } from 'react-router';
+
+import LevelRoguelike  from 'roguelike/level/roguelike'
 
 const gridSize = 1;
 
 interface PageParams {
     level?: string
+}
+
+function generateTiles(size: number) {
+    const tiles = []
+
+    let level;
+    try {
+        level = LevelRoguelike({
+            width: size,
+            height: size,
+            retry: 100, // How many times should we try to add a room?
+            special: true, // Should we generate a "special" room?
+            room: {
+              ideal: 15, // Give up once we get this number of rooms
+              min_width: 5,
+              max_width: 10,
+              min_height: 5,
+              max_height: 10
+            },
+        })
+    } catch(e) {
+        console.warn(e)
+        return [];
+    }
+
+    const blockingTiles = [ 2,3,4 ]
+    const halfSize = size / 2;
+    for (let y = 0; y < size; y++) {
+        for (let x = 0; x < size; x++) {
+            let tile = level.world[y][x]
+            const u = (y === 0)      ? false : (blockingTiles.includes(level.world[y-1][x]))
+            const d = (y === size-1) ? false : (blockingTiles.includes(level.world[y+1][x]))
+            const l = (x === 0)      ? false : (blockingTiles.includes(level.world[y][x-1]))
+            const r = (x === size-1) ? false : (blockingTiles.includes(level.world[y][x+1]))
+            let count = 0
+            if (u) ++count
+            if (d) ++count
+            if (l) ++count
+            if (r) ++count
+
+            switch(tile) {
+                case 0: // void
+                    break;
+                case 1: // floor
+                    tiles.push({
+                        id: 'qd2-floor',
+                        x: x - halfSize,
+                        y: y - halfSize,
+                        rotation: 0,
+                    })
+                   break;
+                case 2: // wall
+                    let rotation = 0
+                    let type = 'qd2-wall'
+                    if (count === 4) {
+                        // It is a +
+                        type = 'qd2-wall-X'
+                    } else if (count === 3) {
+                        type = 'qd2-wall-T'
+                        if (u && d) {
+                            rotation = r ? 3 : 1
+                        } else {
+                            rotation = u ? 2 : 0
+                        }
+                    } if (count === 2) {
+                        if (!l && !r) {
+                            // its a normal vertical wall
+                            rotation = 1;
+                        } else if (u && r) {
+                            type = 'qd2-wall-corner'
+                            rotation = 2;
+                        } else if (r && d) {
+                            type = 'qd2-wall-corner'
+                            rotation = 3;
+                        } else if (d && l) {
+                            type = 'qd2-wall-corner'
+                            rotation = 0;
+                        } else if (l && u) {
+                            type = 'qd2-wall-corner'
+                            rotation = 1;
+                        }
+                    }
+                    tiles.push({
+                        id: type,
+                        x: x - halfSize,
+                        y: y - halfSize,
+                        rotation,
+                    })
+                    break;
+                case 3: // door
+                    tiles.push({
+                        id: 'qd2-arch',
+                        x: x - halfSize,
+                        y: y - halfSize,
+                        rotation: (u || d) ? 1 : 0,
+                    })
+                    break;
+                case 4: // special door
+                    tiles.push({
+                        id: 'qd2-arch',
+                        x: x - halfSize,
+                        y: y - halfSize,
+                        rotation: (u || d) ? 1 : 0,
+                    })   
+                    break;
+                case 5: // enter
+                    break;
+                case 6: // exit
+                    break;
+            }
+        }
+    }
+
+    return tiles
 }
 
 export default function EditPage() {
@@ -102,6 +218,13 @@ export default function EditPage() {
         switch(event.key.toLowerCase()) {
             case 'escape':
                 setTileIndex(-1)
+                break;
+            case 'g':
+                if (!up) {
+                   const { version, size } = map
+                   const newTiles = generateTiles(size)
+                   setMap({ version, size, tiles: newTiles })
+                }
                 break;
             case 's':
                 localStorage.setItem('untitled', JSON.stringify(map))

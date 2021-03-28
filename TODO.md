@@ -11,6 +11,7 @@ Asorted list of things to do
     * Move out player (movement/camera) handling
         * Likely rename Player component to simply Character
         * Move out the actual movement/camera handling to "real" Player component
+* Integrate easystarjs for A* pathfinding
 
 ## Performance
 
