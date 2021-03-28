@@ -1,4 +1,5 @@
 import React, { Suspense } from 'react'
+import { useParams } from 'react-router-dom'
 
 import { Canvas, GroupProps, useFrame } from 'react-three-fiber'
 import { Stats } from '@react-three/drei'
@@ -12,7 +13,6 @@ import { emptyLevel, Level, SubTilePhysics } from '../Level'
 import { getTileById } from '../TileSets'
 
 import './PlayPage.css'
-import { useParams } from 'react-router-dom'
 
 interface SceneOwnProps {
     level: Level
@@ -32,12 +32,13 @@ function Scene({ level }: SceneProps) {
     const [ debug, setDebug ] = React.useState(false)
 
     const physGridSize = 64 * 3
+    const halfLevelSize = level.size / 2;
 
     const physicsMap = React.useMemo(() => {
         let physGrid = new Array<SubTilePhysics>(physGridSize * physGridSize).fill(SubTilePhysics.Void)
         level.tiles.forEach(ti => {
-            const x = (ti.x + 32) * 3; // add half the map size (in tiles) to
-            const y = (ti.y + 32) * 3; // make sure coordinates are positive
+            const x = (ti.x + halfLevelSize) * 3; // add half the map size (in tiles) to
+            const y = (ti.y + halfLevelSize) * 3; // make sure coordinates are positive
             let tileP = getTileById(ti.id)
             if (tileP) {
                 const physics = tileP.physics.slice();
@@ -63,14 +64,14 @@ function Scene({ level }: SceneProps) {
             }
         })
         return physGrid
-    }, [level.tiles, physGridSize])
+    }, [level.tiles, halfLevelSize, physGridSize])
 
     const physDebug = React.useMemo(() => {
         const elems: JSX.Element[] = []
         physicsMap.forEach((el, idx) => {
             if (el === SubTilePhysics.Blocked) {
-                const x = ((idx % physGridSize) * 1/3) - 32 + (1/3)/2
-                const y = (Math.floor(idx / physGridSize) * 1/3) - 32 + (1/3)/2
+                const x = ((idx % physGridSize) * 1/3) - halfLevelSize + (1/3)/2
+                const y = (Math.floor(idx / physGridSize) * 1/3) - halfLevelSize + (1/3)/2
                 elems.push(
                     <mesh key={idx} position={[x, 1, y]}>
                         <boxBufferGeometry args={[1/3,2,1/3]}/>
@@ -113,9 +114,9 @@ function Scene({ level }: SceneProps) {
                 tmpVec.current.add(playerRef.current.position)
 
                 // Check if we can actually move there
-                let physGridX = Math.floor((tmpVec.current.x + 32) / (1/3));
-                let physGridY = Math.floor((tmpVec.current.z + 32) / (1/3));
-                //console.log(Math.floor(physGridX / 3) - 32, Math.floor(physGridY / 3) - 32, physGridX % 3, physGridY % 3)
+                let physGridX = Math.floor((tmpVec.current.x + halfLevelSize) / (1/3));
+                let physGridY = Math.floor((tmpVec.current.z + halfLevelSize) / (1/3));
+                //console.log(Math.floor(physGridX / 3) - halfLevelSize, Math.floor(physGridY / 3) - halfLevelSize, physGridX % 3, physGridY % 3)
 
                 if (physicsMap[physGridY * physGridSize + physGridX] === SubTilePhysics.Walkable) {
                     playerRef.current.position.copy(tmpVec.current)
@@ -129,52 +130,40 @@ function Scene({ level }: SceneProps) {
     useKeyboard(event => {
         const down = event.type === 'keydown'
         const cameraStep = 0.1;
+        const cam = cameraRef.current;
+
         switch(event.key.toLowerCase()) {
             case 'arrowup':
-                if (cameraRef.current) {
-                    cameraRef.current.position.y -= cameraStep;
-                }
+                cam && (cam.position.y -= cameraStep);
                 break;
             case 'arrowdown':
-                if (cameraRef.current) {
-                    cameraRef.current.position.y += cameraStep;
-                }
+                cam && (cam.position.y += cameraStep);
                 break;
             case 'arrowleft':
-                if (cameraRef.current) {
-                    cameraRef.current.position.x  -= cameraStep;
-                }
+                cam && (cam.position.x  -= cameraStep);
                 break;
             case 'arrowright':
-                if (cameraRef.current) {
-                    cameraRef.current.position.x += cameraStep;
-                }
+                cam && (cam.position.x += cameraStep);
                 break;
-
             case '1':
-                if (cameraRef.current) {
-                    cameraRef.current.position.set(.7,13,-2)
-                }
+                cam && cam.position.set(.7,13,-2)
                 break;
             case '2':
-                if (cameraRef.current) {
-                    cameraRef.current.position.set(.7,3,-2)
-                }
+                cam && cam.position.set(.7,3,-2)
                 break;
 
-            case 'w':   inputs.forward = down; setPlayerAnim(down ? 'Walk' : 'Idle'); break;
-            case 'a':   inputs.left = down; break;
-            case 's':   inputs.backward = down; setPlayerAnim(down ? 'Walk' : 'Idle'); break;
-            case 'd':   inputs.right = down; break;
+            case 'w': inputs.forward = down; setPlayerAnim(down ? 'Walk' : 'Idle'); break;
+            case 'a': inputs.left = down; break;
+            case 's': inputs.backward = down; setPlayerAnim(down ? 'Walk' : 'Idle'); break;
+            case 'd': inputs.right = down; break;
 
             case 'escape':
-                if (!down) {
-                    setDebug(!debug);
-                }
+                down && setDebug(!debug);
                 break;
 
             case 'space':
-            case ' ':   inputs.attack = down;
+            case ' ':
+                inputs.attack = down;
                 break;
 
             default:
