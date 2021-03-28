@@ -2,4 +2,8 @@
     "id": "default",
     "description": "Simple demo map",
     "author": "Ithamar"
+}, {
+    "id": "maze",
+    "description": "Generated dungeon level",
+    "author": "node-roguelike"
 }]
