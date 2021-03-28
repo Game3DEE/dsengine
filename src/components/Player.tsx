@@ -3,18 +3,17 @@ import { useAnimations, useGLTF, useTexture } from "@react-three/drei"
 import { GroupProps } from "react-three-fiber"
 import { Mesh, MeshBasicMaterial, RepeatWrapping } from 'three'
 
-const playerModel = 'npc/Rogue.glb'
-
 interface PlayerOwnProps {
     animation?: string
+    character?: 'Cleric' | 'Monk' | 'Ranger' | 'Rogue' | 'Warrior' | 'Wizard'
 }
 
 type PlayerProps = PlayerOwnProps & GroupProps
 
-export const Player = React.forwardRef((props: PlayerProps, nref: any) => {
-    const { animations, nodes } = useGLTF(playerModel)
+export const Player = React.forwardRef(({ animation = 'Idle', character = 'Warrior', ...props }: PlayerProps, nref: any) => {
+    const { animations, nodes } = useGLTF(`npc/${character}.glb`)
     const { ref, actions } = useAnimations(animations)
-    const tex = useTexture('npc/Rogue_Texture.png')
+    const tex = useTexture(`npc/${character}_Texture.png`)
     tex.wrapS = tex.wrapT = RepeatWrapping;
     const [ activeAnimation, setActiveAnimation ] = React.useState('')
 
@@ -29,16 +28,16 @@ export const Player = React.forwardRef((props: PlayerProps, nref: any) => {
 
     React.useEffect(() => {
         //console.log(actions)
-        if (props.animation) {
-            if (activeAnimation !== props.animation) {
+        if (animation) {
+            if (activeAnimation !== animation) {
                 if (activeAnimation) {
                     actions[activeAnimation!].stop()
                 }
-                setActiveAnimation(props.animation)
-                actions[props.animation].play()
+                setActiveAnimation(animation)
+                actions[animation].play()
             }
         }
-    }, [actions, activeAnimation, setActiveAnimation, props.animation])
+    }, [actions, activeAnimation, setActiveAnimation, animation])
 
     return (
         <group name="player" {...props} ref={nref}>
@@ -48,5 +47,3 @@ export const Player = React.forwardRef((props: PlayerProps, nref: any) => {
         
     )
 })
-
-useGLTF.preload(playerModel)

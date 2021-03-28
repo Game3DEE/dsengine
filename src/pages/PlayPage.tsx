@@ -112,9 +112,9 @@ function Scene({ level }: SceneProps) {
                 // Check if we can actually move there
                 let physGridX = Math.floor((tmpVec.current.x + 32) / (1/3));
                 let physGridY = Math.floor((tmpVec.current.z + 32) / (1/3));
-                console.log(Math.floor(physGridX / 3) - 32, Math.floor(physGridY / 3) - 32, physGridX % 3, physGridY % 3)
+                //console.log(Math.floor(physGridX / 3) - 32, Math.floor(physGridY / 3) - 32, physGridX % 3, physGridY % 3)
 
-                if (true) { //physicsMap[physGridY * physGridSize + physGridX] === SubTilePhysics.Walkable) {
+                if (physicsMap[physGridY * physGridSize + physGridX] === SubTilePhysics.Walkable) {
                     playerRef.current.position.copy(tmpVec.current)
                 }
 
@@ -163,7 +163,7 @@ function Scene({ level }: SceneProps) {
         <>
         <Stats />
 
-        <ambientLight intensity={0.1} />
+        <ambientLight intensity={0.2} />
         <directionalLight intensity={0.4} position={[2.5,1,0.4]} ref={lightRef} />
 
         {staticGeo}
