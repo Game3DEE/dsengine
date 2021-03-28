@@ -29,6 +29,7 @@ function Scene({ level }: SceneProps) {
     const tmpVec = React.useRef<Vector3>(new Vector3())
     const cameraRef = React.useRef<Object3D>()
     const [ playerAnim, setPlayerAnim ] = React.useState('Idle')
+    const [ debug, setDebug ] = React.useState(false)
 
     const physGridSize = 64 * 3
 
@@ -73,7 +74,7 @@ function Scene({ level }: SceneProps) {
                 elems.push(
                     <mesh key={idx} position={[x, 1, y]}>
                         <boxBufferGeometry args={[1/3,2,1/3]}/>
-                        <meshLambertMaterial color="hotpink" />
+                        <meshLambertMaterial color="hotpink" transparent opacity={0.5} />
                     </mesh>
                 )
             }
@@ -166,8 +167,10 @@ function Scene({ level }: SceneProps) {
             case 's':   inputs.backward = down; setPlayerAnim(down ? 'Walk' : 'Idle'); break;
             case 'd':   inputs.right = down; break;
 
-            case 'c':
-                // TODO Switch camera modes
+            case 'escape':
+                if (!down) {
+                    setDebug(!debug);
+                }
                 break;
 
             case 'space':
@@ -189,7 +192,7 @@ function Scene({ level }: SceneProps) {
         <directionalLight intensity={0.4} position={[2.5,1,0.4]} ref={lightRef} castShadow />
 
         {staticGeo}
-        {/*physDebug*/}
+        {debug && physDebug}
 
         <Player
             animation={playerAnim}

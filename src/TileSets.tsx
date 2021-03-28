@@ -48,9 +48,9 @@ export const tiles: Tile[] = [
   {
     id: "qd2-wall-corner",
     physics: [
-      SubTilePhysics.Walkable, SubTilePhysics.Blocked,  SubTilePhysics.Walkable,
-      SubTilePhysics.Walkable, SubTilePhysics.Blocked,  SubTilePhysics.Blocked,
-      SubTilePhysics.Walkable, SubTilePhysics.Walkable, SubTilePhysics.Walkable,
+      SubTilePhysics.Walkable, SubTilePhysics.Walkable,  SubTilePhysics.Walkable,
+      SubTilePhysics.Blocked,  SubTilePhysics.Blocked,   SubTilePhysics.Walkable,
+      SubTilePhysics.Walkable,  SubTilePhysics.Blocked,  SubTilePhysics.Walkable,
     ],
     element: <WallCorner />,
     tags: [ 'Quaternius', 'Dungeon', 'Wall', 'Corner' ],
