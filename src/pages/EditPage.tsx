@@ -7,7 +7,7 @@ import { Object3D } from 'three';
 import { useKeyboard } from '../hooks/useKeyboard'
 import { LevelRenderer } from '../components/LevelRenderer'
 
-import { emptyLevel, findTileInLevel, Level, TileInstance } from '../Level'
+import { Level } from '../Level'
 import { getTileByIndex, getTileCount, getTileIndexById } from '../TileSets'
 
 import './EditPage.css'
@@ -139,18 +139,19 @@ export default function EditPage() {
     const cursorRef = React.useRef<Object3D>()
     const [ tileIndex, setTileIndex ] = React.useState(-1)
     const [ tileRotation, setTileRotation ] = React.useState(0)
-    const [ map, setMap ] = React.useState<Level>(emptyLevel)
+    const [ map, setMap ] = React.useState<Level>(new Level())
     const { level } = useParams<PageParams>()
 
     React.useEffect(() => {
         let levelToLoad = level || 'default';
         fetch(`levels/${levelToLoad}.json`).then(body => body.json()).then(loadedLevel => {
-            setMap(loadedLevel)
+            setMap(Level.fromJSON(loadedLevel))
         }).catch(reason => {
             console.log(reason)
             const item = localStorage.getItem('untitled')
             if (item) {
-                setMap(JSON.parse(item))
+                const data = JSON.parse(item);
+                setMap(Level.fromJSON(data))
             }    
         })
     }, [setMap, level])
@@ -180,7 +181,7 @@ export default function EditPage() {
 
         const gridX = Math.floor(point.x / gridSize)
         const gridY = Math.floor(point.z / gridSize)
-        let tile = findTileInLevel(map, gridX, gridY)
+        let tile = map.findTileAt(gridX, gridY)
         
         // Check if we're picking a tile
         if (event.shiftKey) {
@@ -191,26 +192,30 @@ export default function EditPage() {
         }
 
         // Update state with new tile (if there was one)
-        const { version, size, tiles } = map
-        const newTiles: TileInstance[] = tiles.slice()
+        const newLevel = map.clone()
 
-        if (tile && (tileIndex !== -1 || event.ctrlKey)) {
-            newTiles.splice(newTiles.indexOf(tile), 1)
+        if (event.ctrlKey) {
+            // We're simply deleting the tile under the cursor
+            newLevel.clearTileAt(gridX, gridY)
+        } else if (tileIndex !== -1) {
+            // We have a tile to place selected, so place it
+            const id = getTileByIndex(tileIndex)!.id
+            newLevel.setTileAt(
+                id,
+                {
+                    id,
+                    x: gridX,
+                    y: gridY,
+                    rotation: tileRotation
+                }
+            )
+        } else {
+            // no tile selected, don't update level
+            return
         }
 
-        // Only place new tile if one is 
-        // selected and ctrl key not pressed
-        if (tileIndex >= 0 && !event.ctrlKey) {
-            newTiles.push({
-                id: getTileByIndex(tileIndex)!.id,
-                x: gridX,
-                y: gridY,
-                rotation: tileRotation,
-            })
-        }
-        
         // finally update map!
-        setMap({ version, size, tiles: newTiles })
+        setMap(newLevel)
     }
 
     useKeyboard((event: KeyboardEvent) => {
@@ -221,9 +226,8 @@ export default function EditPage() {
                 break;
             case 'g':
                 if (!up) {
-                   const { version, size } = map
-                   const newTiles = generateTiles(size)
-                   setMap({ version, size, tiles: newTiles })
+                   const newTiles = generateTiles(map.size)
+                   setMap(new Level(map.version, map.size, newTiles))
                 }
                 break;
             case 's':

@@ -9,7 +9,7 @@ import { LevelRenderer } from '../components/LevelRenderer'
 import { Player } from '../components/Player'
 import { useKeyboard } from '../hooks/useKeyboard'
 
-import { emptyLevel, Level, SubTilePhysics } from '../Level'
+import { Level, SubTilePhysics } from '../Level'
 import { getTileById } from '../TileSets'
 
 import './PlayPage.css'
@@ -82,7 +82,7 @@ function Scene({ level }: SceneProps) {
         })
 
         return elems
-    }, [physGridSize, physicsMap])
+    }, [physGridSize, halfLevelSize, physicsMap])
 
     const inputs = {
         left: false,
@@ -193,7 +193,7 @@ function Scene({ level }: SceneProps) {
 }
 
 export default function PlayPage() {
-    const [ level, setLevel ] = React.useState<Level>(emptyLevel)
+    const [ level, setLevel ] = React.useState<Level>(new Level())
     const { level: loadLevel } = useParams<PageParams>()
 
     React.useEffect(() => {
@@ -204,7 +204,8 @@ export default function PlayPage() {
             console.log(reason)
             const item = localStorage.getItem('untitled')
             if (item) {
-                setLevel(JSON.parse(item))
+                const data = JSON.parse(item)
+                setLevel(Level.fromJSON(data))
             }    
         })
     }, [setLevel, loadLevel])
