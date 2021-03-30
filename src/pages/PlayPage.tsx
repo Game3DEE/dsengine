@@ -10,7 +10,6 @@ import { Player } from '../components/Player'
 import { useKeyboard } from '../hooks/useKeyboard'
 
 import { Level, SubTilePhysics } from '../Level'
-import { getTileById } from '../TileSets'
 
 import './PlayPage.css'
 
@@ -31,58 +30,10 @@ function Scene({ level }: SceneProps) {
     const [ playerAnim, setPlayerAnim ] = React.useState('Idle')
     const [ debug, setDebug ] = React.useState(false)
 
-    const physGridSize = 64 * 3
+    const physGridSize = level.size * 3
     const halfLevelSize = level.size / 2;
 
-    const physicsMap = React.useMemo(() => {
-        let physGrid = new Array<SubTilePhysics>(physGridSize * physGridSize).fill(SubTilePhysics.Void)
-        level.tiles.forEach(ti => {
-            const x = (ti.x + halfLevelSize) * 3; // add half the map size (in tiles) to
-            const y = (ti.y + halfLevelSize) * 3; // make sure coordinates are positive
-            let tileP = getTileById(ti.id)
-            if (tileP) {
-                const physics = tileP.physics.slice();
-                for (let i = 0; i < ti.rotation; i++) {
-                    const old = physics.slice()
-                    physics[0] = old[6]
-                    physics[1] = old[3]
-                    physics[2] = old[0]
-                    physics[3] = old[7]
-                    physics[4] = old[4]
-                    physics[5] = old[1]
-                    physics[6] = old[8]
-                    physics[7] = old[5]
-                    physics[8] = old[2]
-                }
-                let off = (y * physGridSize) + x
-                for (let i = 0; i < 3; i++) {
-                    physGrid[off + 0] = physics[3 * i + 0]
-                    physGrid[off + 1] = physics[3 * i + 1]
-                    physGrid[off + 2] = physics[3 * i + 2]
-                    off += physGridSize
-                }
-            }
-        })
-        return physGrid
-    }, [level.tiles, halfLevelSize, physGridSize])
-
-    const physDebug = React.useMemo(() => {
-        const elems: JSX.Element[] = []
-        physicsMap.forEach((el, idx) => {
-            if (el === SubTilePhysics.Blocked) {
-                const x = ((idx % physGridSize) * 1/3) - halfLevelSize + (1/3)/2
-                const y = (Math.floor(idx / physGridSize) * 1/3) - halfLevelSize + (1/3)/2
-                elems.push(
-                    <mesh key={idx} position={[x, 1, y]}>
-                        <boxBufferGeometry args={[1/3,2,1/3]}/>
-                        <meshLambertMaterial color="hotpink" transparent opacity={0.5} />
-                    </mesh>
-                )
-            }
-        })
-
-        return elems
-    }, [physGridSize, halfLevelSize, physicsMap])
+    const physicsMap = React.useMemo(() => level.createPhysicsMap(), [level])
 
     const inputs = {
         left: false,
@@ -121,8 +72,6 @@ function Scene({ level }: SceneProps) {
                 if (physicsMap[physGridY * physGridSize + physGridX] === SubTilePhysics.Walkable) {
                     playerRef.current.position.copy(tmpVec.current)
                 }
-
-                
             }
         }
     });
@@ -178,8 +127,7 @@ function Scene({ level }: SceneProps) {
         <ambientLight intensity={0.2} />
         <directionalLight intensity={0.4} position={[2.5,1,0.4]} ref={lightRef} castShadow />
 
-        <LevelRenderer level={level} gridSize={1} />
-        {debug && physDebug}
+        <LevelRenderer debug={debug} level={level} gridSize={1} />
 
         <Player
             animation={playerAnim}
@@ -199,7 +147,7 @@ export default function PlayPage() {
     React.useEffect(() => {
         let levelToLoad = loadLevel || 'default';
         fetch(`levels/${levelToLoad}.json`).then(body => body.json()).then(loadedLevel => {
-            setLevel(loadedLevel)
+            setLevel(Level.fromJSON(loadedLevel))
         }).catch(reason => {
             console.log(reason)
             const item = localStorage.getItem('untitled')

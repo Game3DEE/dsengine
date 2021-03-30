@@ -181,12 +181,12 @@ export default function EditPage() {
 
         const gridX = Math.floor(point.x / gridSize)
         const gridY = Math.floor(point.z / gridSize)
-        let tile = map.findTileAt(gridX, gridY)
+        let [id, tile] = map.findTileAt(gridX, gridY)
         
         // Check if we're picking a tile
         if (event.shiftKey) {
             // ... and if so, handle case of no tile
-            setTileIndex(tile ? getTileIndexById(tile.id) : -1 )
+            setTileIndex(tile ? getTileIndexById(id) : -1 )
             tile && setTileRotation(tile.rotation)
             return
         }
@@ -203,7 +203,6 @@ export default function EditPage() {
             newLevel.setTileAt(
                 id,
                 {
-                    id,
                     x: gridX,
                     y: gridY,
                     rotation: tileRotation
