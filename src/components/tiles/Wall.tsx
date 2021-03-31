@@ -1,17 +1,17 @@
 import React from 'react';
 
-import { useGLTF } from '@react-three/drei'
 import { GroupProps } from 'react-three-fiber'
 import { PlainSquareColumn } from './Columns';
 import { Floor } from './Floor';
+import { useCachedGLTF } from '../../hooks/useCachedGLTF';
 
 const wallModel = 'models/Wall_Modular.glb'
 const wallCoverModel = 'models/WallCover_Modular.glb'
 const brokenWallModel = 'models/Decorative_Wall.glb'
 
 function WallWithCover({ rotation, ...props }: GroupProps) {
-    const { nodes: cnodes } = useGLTF(wallCoverModel)
-    const { nodes: wnodes } = useGLTF(wallModel)
+    const { nodes: cnodes } = useCachedGLTF(wallCoverModel)
+    const { nodes: wnodes } = useCachedGLTF(wallModel)
 
     let coverRotation = undefined
     if (rotation) {
@@ -28,7 +28,7 @@ function WallWithCover({ rotation, ...props }: GroupProps) {
 }
 
 function PlainWall(props: GroupProps) {
-    const { nodes } = useGLTF(wallModel)
+    const { nodes } = useCachedGLTF(wallModel)
 
     return (
         <primitive object={nodes.Wall_Modular.clone()} castShadow receiveShadow {...props} />
@@ -36,7 +36,7 @@ function PlainWall(props: GroupProps) {
 }
 
 export function WallBroken(props: GroupProps) {
-    const { nodes } = useGLTF(brokenWallModel)
+    const { nodes } = useCachedGLTF(brokenWallModel)
 
     return (
         <group name="wall-broken" {...props} >
@@ -126,7 +126,3 @@ export function WallX(props: GroupProps) {
         </group>
     )
 }
-
-useGLTF.preload(brokenWallModel)
-useGLTF.preload(wallModel)
-useGLTF.preload(wallCoverModel)

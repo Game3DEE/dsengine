@@ -1,10 +1,10 @@
-import { useGLTF } from '@react-three/drei'
 import { GroupProps } from 'react-three-fiber'
+import { useCachedGLTF } from '../../hooks/useCachedGLTF';
 
 const floorModel = 'models/Floor_Modular.glb'
 
 export function Floor(props: GroupProps) {
-    const { nodes } = useGLTF(floorModel)
+    const { nodes } = useCachedGLTF(floorModel)
 
     const rot = () => (Math.floor(Math.random() * 8) -4) * Math.PI;
 
@@ -18,5 +18,3 @@ export function Floor(props: GroupProps) {
         </group>
     )
 }
-
-useGLTF.preload(floorModel)

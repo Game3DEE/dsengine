@@ -1,5 +1,5 @@
-import { useGLTF } from '@react-three/drei'
 import { GroupProps } from 'react-three-fiber'
+import { useCachedGLTF } from '../../hooks/useCachedGLTF'
 import { Floor } from './Floor'
 
 const SColumnModel = 'models/Column.glb'
@@ -7,7 +7,7 @@ const RColumnModel = 'models/Column2.glb'
 
 /** Warning: for internal use only */
 export function PlainSquareColumn(props: GroupProps) {
-    const { nodes } = useGLTF(SColumnModel)
+    const { nodes } = useCachedGLTF(SColumnModel)
     return (
         <primitive object={nodes.Column.clone()} castShadow receiveShadow {...props} />
     )
@@ -24,7 +24,7 @@ export function SquareColumn(props: GroupProps) {
 }
 
 export function RoundColumn(props: GroupProps) {
-    const { nodes } = useGLTF(RColumnModel)
+    const { nodes } = useCachedGLTF(RColumnModel)
     return (
         <group name="rncolumn" {...props}>
             <primitive object={nodes.Column2.clone()} castShadow receiveShadow />
@@ -32,6 +32,3 @@ export function RoundColumn(props: GroupProps) {
         </group>
     )
 }
-
-useGLTF.preload(SColumnModel)
-useGLTF.preload(RColumnModel)

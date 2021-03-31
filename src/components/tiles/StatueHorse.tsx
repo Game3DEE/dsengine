@@ -1,13 +1,13 @@
 import React from "react"
 
-import { useGLTF } from "@react-three/drei"
 import { GroupProps } from "react-three-fiber"
 import { Floor } from "./Floor"
+import { useCachedGLTF } from "../../hooks/useCachedGLTF"
 
 const model = 'models/Statue_Horse.glb'
 
 export function StatueHorse(props: GroupProps) {
-    const { nodes } = useGLTF(model)
+    const { nodes } = useCachedGLTF(model)
     
     // HACK! TODO: Fix model
     nodes.Pedestal.position.set(0,0,0)
@@ -21,5 +21,3 @@ export function StatueHorse(props: GroupProps) {
         </group>
     )
 }
-
-useGLTF.preload(model)
